@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Recettes 100 000+ avec recherche et pagination</title>
+  <title>Recettes 100 000+ avec Fuse.js rapide</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 1rem; background: #fafafa; color: #222; }
     input[type="search"] {
@@ -24,10 +24,12 @@
       background: #ccc; border-color: #ccc; cursor: not-allowed;
     }
   </style>
+  <!-- Fuse.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 </head>
 <body>
 
-  <h1>Recettes 100 000+ avec recherche et pagination</h1>
+  <h1>Recettes 100 000+ avec recherche Fuse.js rapide</h1>
   <input type="search" id="searchInput" placeholder="Chercher une recette..." autocomplete="off" />
 
   <ul id="recipeList"></ul>
@@ -35,32 +37,29 @@
   <div class="pagination">
     <button id="prevBtn" disabled>Précédent</button>
     <span id="pageInfo">Page 1</span>
-    <button id="nextBtn">Suivant</button>
+    <button id="nextBtn" disabled>Suivant</button>
   </div>
 
   <script>
     const totalRecipes = 100000;
     const pageSize = 100;
     let currentPage = 1;
-    let currentFilter = '';
+    let results = [];
+    let fuse;
 
-    // Générer titres à la volée (pas de stockage lourd)
-    function getRecipeTitle(index) {
-      return `Recette numéro ${index + 1}`;
+    // Générer les données au format objets { title: "Recette numéro X" }
+    const data = [];
+    for(let i=1; i<=totalRecipes; i++) {
+      data.push({ title: `Recette numéro ${i}` });
     }
 
-    // Chercher recettes correspondant au filtre, paginées
-    function getFilteredRecipes(filter) {
-      filter = filter.toLowerCase();
-      const matchedIndices = [];
-      for(let i=0; i<totalRecipes; i++) {
-        const title = getRecipeTitle(i);
-        if(title.toLowerCase().includes(filter)) {
-          matchedIndices.push(i);
-        }
-      }
-      return matchedIndices;
-    }
+    // Initialiser Fuse.js
+    fuse = new Fuse(data, {
+      keys: ['title'],
+      threshold: 0.3,
+      ignoreLocation: true,
+      minMatchCharLength: 1,
+    });
 
     const list = document.getElementById('recipeList');
     const input = document.getElementById('searchInput');
@@ -68,60 +67,60 @@
     const nextBtn = document.getElementById('nextBtn');
     const pageInfo = document.getElementById('pageInfo');
 
-    let matchedIndices = [];
-
     function renderPage(page) {
       list.innerHTML = '';
-      const start = (page -1)*pageSize;
+      const start = (page - 1) * pageSize;
       const end = start + pageSize;
-      const pageItems = matchedIndices.slice(start, end);
+      const pageItems = results.slice(start, end);
 
-      if(pageItems.length === 0) {
+      if (pageItems.length === 0) {
         const li = document.createElement('li');
         li.textContent = 'Aucune recette trouvée.';
         list.appendChild(li);
       } else {
-        for(const idx of pageItems) {
+        for (const item of pageItems) {
           const li = document.createElement('li');
-          li.textContent = getRecipeTitle(idx);
+          li.textContent = item.item.title;
           list.appendChild(li);
         }
       }
-      pageInfo.textContent = `Page ${page} / ${Math.max(1, Math.ceil(matchedIndices.length / pageSize))}`;
+
+      pageInfo.textContent = `Page ${page} / ${Math.max(1, Math.ceil(results.length / pageSize))}`;
       prevBtn.disabled = page <= 1;
-      nextBtn.disabled = page >= Math.ceil(matchedIndices.length / pageSize);
+      nextBtn.disabled = page >= Math.ceil(results.length / pageSize);
     }
 
-    function updateList() {
+    function doSearch(query) {
+      if (!query) {
+        // Pas de filtre = toutes les recettes, en simili fuse (pour homogénéité)
+        results = data.map(item => ({ item }));
+      } else {
+        results = fuse.search(query);
+      }
       currentPage = 1;
-      matchedIndices = getFilteredRecipes(currentFilter);
       renderPage(currentPage);
     }
 
     input.addEventListener('input', e => {
-      currentFilter = e.target.value.trim();
-      updateList();
+      doSearch(e.target.value.trim());
     });
 
     prevBtn.addEventListener('click', () => {
-      if(currentPage >1) {
+      if (currentPage > 1) {
         currentPage--;
         renderPage(currentPage);
       }
     });
 
     nextBtn.addEventListener('click', () => {
-      if(currentPage < Math.ceil(matchedIndices.length / pageSize)) {
+      if (currentPage < Math.ceil(results.length / pageSize)) {
         currentPage++;
         renderPage(currentPage);
       }
     });
 
-    // Initial
-    currentFilter = '';
-    matchedIndices = Array.from({length: totalRecipes}, (_,i) => i);
-    renderPage(currentPage);
-
+    // Initial display
+    doSearch('');
   </script>
 
 </body>
