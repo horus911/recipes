@@ -1,185 +1,487 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Recettes détaillées avec FlexSearch</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 1rem; background: #fafafa; color: #222; }
-    input[type="search"] {
-      width: 100%; padding: 0.8rem; font-size: 1.1rem; margin-bottom: 1rem; border: 2px solid #4CAF50; border-radius: 5px;
-    }
-    ul {
-      list-style: none; padding: 0; max-height: 70vh; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 6px;
-    }
-    li {
-      padding: 1rem; border-bottom: 1px solid #eee; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.3;
-    }
-    .pagination {
-      margin-top: 1rem; display: flex; justify-content: center; gap: 1rem;
-    }
-    button {
-      padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; border-radius: 5px; border: 1px solid #4CAF50; background: #4CAF50; color: white;
-    }
-    button:disabled {
-      background: #ccc; border-color: #ccc; cursor: not-allowed;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.31/dist/flexsearch.bundle.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes 100,000 Recettes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            color: #4a5568;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .recipe-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recipe-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .recipe-image::before {
+            content: '🍳';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            opacity: 0.7;
+        }
+
+        .recipe-content {
+            padding: 20px;
+        }
+
+        .recipe-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .recipe-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #718096;
+        }
+
+        .recipe-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .recipe-description {
+            color: #4a5568;
+            line-height: 1.5;
+            font-size: 0.9em;
+        }
+
+        .recipe-tags {
+            display: flex;
+            gap: 5px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #e6fffa;
+            color: #234e52;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            border: 1px solid #b2f5ea;
+        }
+
+        .load-more {
+            display: block;
+            margin: 30px auto;
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .load-more:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #718096;
+            font-size: 1.2em;
+            margin: 50px 0;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                justify-content: center;
+            }
+            
+            .recipes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🍽️ Mes 100,000 Recettes</h1>
+            <p>Découvrez une collection infinie de délicieuses recettes du monde entier</p>
+        </div>
 
-  <h1>Recettes détaillées avec FlexSearch (10 000 recettes)</h1>
-  <input type="search" id="searchInput" placeholder="Chercher titre, ingrédient, préparation..." autocomplete="off" />
+        <div class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-recipes">100,000</div>
+                    <div class="stat-label">Recettes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">50+</div>
+                    <div class="stat-label">Catégories</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Pays</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="filtered-count">24</div>
+                    <div class="stat-label">Affichées</div>
+                </div>
+            </div>
+        </div>
 
-  <ul id="recipeList"></ul>
+        <div class="search-section">
+            <input type="text" class="search-box" placeholder="Rechercher une recette, un ingrédient, un pays..." id="search-input">
+            
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">Toutes</button>
+                <button class="filter-btn" data-filter="entrées">Entrées</button>
+                <button class="filter-btn" data-filter="plats">Plats principaux</button>
+                <button class="filter-btn" data-filter="desserts">Desserts</button>
+                <button class="filter-btn" data-filter="boissons">Boissons</button>
+                <button class="filter-btn" data-filter="végétarien">Végétarien</button>
+                <button class="filter-btn" data-filter="rapide">Rapide</button>
+            </div>
+        </div>
 
-  <div class="pagination">
-    <button id="prevBtn" disabled>Précédent</button>
-    <span id="pageInfo">Page 1</span>
-    <button id="nextBtn" disabled>Suivant</button>
-  </div>
+        <div class="recipes-grid" id="recipes-grid">
+            <!-- Les recettes seront générées ici -->
+        </div>
 
-  <script>
-    const totalRecipes = 10000;
-    const pageSize = 50;
-    let currentPage = 1;
-    let results = [];
+        <div class="no-results" id="no-results" style="display: none;">
+            Aucune recette trouvée pour votre recherche 😔
+        </div>
 
-    // Données de base
-    const baseTitles = [
-      "Soupe aux légumes",
-      "Salade fraîche",
-      "Poulet rôti",
-      "Tarte aux pommes",
-      "Gratin dauphinois",
-      "Omelette au fromage",
-      "Pâtes à la bolognaise",
-      "Poisson grillé",
-      "Crêpes sucrées",
-      "Gâteau au yaourt"
-    ];
+        <button class="load-more" id="load-more">Charger plus de recettes</button>
+    </div>
 
-    const baseIngredients = [
-      "légumes frais, huile d'olive, sel, poivre",
-      "salade verte, tomates, vinaigrette, herbes",
-      "poulet entier, herbes de Provence, ail, huile",
-      "pommes, pâte brisée, sucre, cannelle",
-      "pommes de terre, crème, ail, fromage",
-      "œufs, fromage râpé, beurre, sel",
-      "pâtes, viande hachée, tomates, oignons",
-      "filet de poisson, citron, herbes, huile",
-      "farine, œufs, lait, sucre",
-      "yaourt, farine, œufs, sucre"
-    ];
+    <script>
+        // Base de données simulée de recettes
+        const recipeDatabase = {
+            countries: ['France', 'Italie', 'Espagne', 'Mexique', 'Japon', 'Inde', 'Chine', 'Thaïlande', 'Maroc', 'Grèce'],
+            categories: ['entrées', 'plats', 'desserts', 'boissons'],
+            adjectives: ['Délicieux', 'Authentique', 'Traditionnel', 'Moderne', 'Fusion', 'Classique', 'Épicé', 'Doux', 'Crémeux', 'Croquant'],
+            dishTypes: [
+                'Soupe', 'Salade', 'Risotto', 'Curry', 'Pasta', 'Tarte', 'Gâteau', 'Mousse', 'Smoothie', 'Cocktail',
+                'Gratin', 'Ratatouille', 'Couscous', 'Paella', 'Sushi', 'Dim Sum', 'Tacos', 'Burrito', 'Pizza', 'Quiche'
+            ],
+            ingredients: [
+                'tomates', 'basilic', 'mozzarella', 'olives', 'champignons', 'poivrons', 'aubergines', 'courgettes',
+                'poulet', 'bœuf', 'porc', 'saumon', 'thon', 'crevettes', 'riz', 'pâtes', 'pommes de terre',
+                'fromage', 'crème', 'lait de coco', 'épices', 'herbes', 'ail', 'oignon', 'gingembre'
+            ],
+            tags: ['végétarien', 'vegan', 'sans gluten', 'rapide', 'facile', 'healthy', 'comfort food', 'épicé', 'sucré', 'salé']
+        };
 
-    const basePreparations = [
-      "Mélangez les ingrédients et faites cuire doucement.",
-      "Coupez, assaisonnez, et servez frais.",
-      "Assaisonnez et faites rôtir au four pendant 1 heure.",
-      "Disposez les fruits sur la pâte et enfournez 40 minutes.",
-      "Coupez en tranches, nappez de crème, et faites gratiner.",
-      "Battez les œufs avec le fromage, cuisez à la poêle.",
-      "Préparez la sauce avec viande et tomates, servez avec pâtes.",
-      "Assaisonnez, puis grillez à la poêle ou au four.",
-      "Préparez la pâte, cuisez des crêpes fines et dorées.",
-      "Mélangez tout, versez dans un moule et enfournez."
-    ];
+        let currentPage = 1;
+        let recipesPerPage = 24;
+        let allRecipes = [];
+        let filteredRecipes = [];
+        let currentFilter = 'all';
+        let searchQuery = '';
 
-    // Générer les recettes
-    const data = [];
-    for(let i=0; i<totalRecipes; i++) {
-      const idx = i % baseTitles.length;
-      data.push({
-        id: i,
-        title: `${baseTitles[idx]} n°${i+1}`,
-        ingredients: baseIngredients[idx],
-        preparation: basePreparations[idx]
-      });
-    }
-
-    // Création d'un index FlexSearch multi-champs
-    const index = new FlexSearch.Document({
-      document: {
-        id: "id",
-        index: ["title", "ingredients", "preparation"],
-        store: ["title", "ingredients", "preparation"]
-      },
-      tokenize: "forward",
-      cache: true,
-      resolution: 3
-    });
-
-    // Indexation
-    data.forEach(item => index.add(item));
-
-    const list = document.getElementById("recipeList");
-    const input = document.getElementById("searchInput");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const pageInfo = document.getElementById("pageInfo");
-
-    function renderPage(page) {
-      list.innerHTML = "";
-      const start = (page - 1) * pageSize;
-      const end = start + pageSize;
-      const pageItems = results.slice(start, end);
-
-      if(pageItems.length === 0) {
-        const li = document.createElement("li");
-        li.textContent = "Aucune recette trouvée.";
-        list.appendChild(li);
-      } else {
-        for(const item of pageItems) {
-          const li = document.createElement("li");
-          li.textContent = `${item.title}\nIngrédients : ${item.ingredients}\nPréparation : ${item.preparation}`;
-          list.appendChild(li);
+        // Générateur de recettes
+        function generateRecipe(id) {
+            const country = recipeDatabase.countries[Math.floor(Math.random() * recipeDatabase.countries.length)];
+            const category = recipeDatabase.categories[Math.floor(Math.random() * recipeDatabase.categories.length)];
+            const adjective = recipeDatabase.adjectives[Math.floor(Math.random() * recipeDatabase.adjectives.length)];
+            const dish = recipeDatabase.dishTypes[Math.floor(Math.random() * recipeDatabase.dishTypes.length)];
+            const ingredient = recipeDatabase.ingredients[Math.floor(Math.random() * recipeDatabase.ingredients.length)];
+            
+            const time = Math.floor(Math.random() * 120) + 10;
+            const difficulty = ['Facile', 'Moyen', 'Difficile'][Math.floor(Math.random() * 3)];
+            const servings = Math.floor(Math.random() * 8) + 2;
+            
+            const numTags = Math.floor(Math.random() * 3) + 1;
+            const tags = [];
+            for (let i = 0; i < numTags; i++) {
+                const tag = recipeDatabase.tags[Math.floor(Math.random() * recipeDatabase.tags.length)];
+                if (!tags.includes(tag)) tags.push(tag);
+            }
+            
+            return {
+                id,
+                title: `${adjective} ${dish} ${country === 'France' ? 'à la française' : 'de ' + country}`,
+                category,
+                country,
+                time,
+                difficulty,
+                servings,
+                description: `Une recette ${adjective.toLowerCase()} de ${dish.toLowerCase()} aux ${ingredient}, parfaite pour découvrir les saveurs ${country === 'France' ? 'françaises' : 'de ' + country}. Facile à préparer et délicieuse à déguster.`,
+                tags,
+                image: `https://source.unsplash.com/400x300/?${dish},${ingredient}`,
+                ingredients: [ingredient, 'sel', 'poivre', 'huile d\'olive'],
+                instructions: [
+                    'Préparer tous les ingrédients',
+                    'Faire chauffer l\'huile dans une poêle',
+                    'Ajouter les ingrédients principaux',
+                    'Cuire selon les instructions',
+                    'Servir chaud et déguster'
+                ]
+            };
         }
-      }
 
-      const totalPages = Math.max(1, Math.ceil(results.length / pageSize));
-      pageInfo.textContent = `Page ${page} / ${totalPages}`;
-      prevBtn.disabled = page <= 1;
-      nextBtn.disabled = page >= totalPages;
-    }
+        // Initialisation des recettes
+        function initializeRecipes() {
+            allRecipes = [];
+            for (let i = 1; i <= 100000; i++) {
+                allRecipes.push(generateRecipe(i));
+            }
+            filteredRecipes = [...allRecipes];
+        }
 
-    async function doSearch(query) {
-      if(!query) {
-        results = data;
-      } else {
-        const foundIds = await index.searchAsync(query, { enrich: true });
-        // foundIds est tableau d'objets { result: [ids] } par champ, on fusionne et unique
-        const allIds = new Set();
-        foundIds.forEach(res => {
-          res.result.forEach(id => allIds.add(id));
+        // Filtrage des recettes
+        function filterRecipes() {
+            let filtered = allRecipes;
+            
+            // Filtre par catégorie
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(recipe => 
+                    recipe.category === currentFilter || 
+                    recipe.tags.includes(currentFilter)
+                );
+            }
+            
+            // Filtre par recherche
+            if (searchQuery) {
+                filtered = filtered.filter(recipe =>
+                    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    recipe.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    recipe.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase())) ||
+                    recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+                );
+            }
+            
+            filteredRecipes = filtered;
+            updateFilteredCount();
+        }
+
+        // Mise à jour du compteur
+        function updateFilteredCount() {
+            document.getElementById('filtered-count').textContent = Math.min(filteredRecipes.length, currentPage * recipesPerPage).toLocaleString();
+        }
+
+        // Rendu des recettes
+        function renderRecipes() {
+            const grid = document.getElementById('recipes-grid');
+            const noResults = document.getElementById('no-results');
+            const loadMore = document.getElementById('load-more');
+            
+            const startIndex = 0;
+            const endIndex = currentPage * recipesPerPage;
+            const recipesToShow = filteredRecipes.slice(startIndex, endIndex);
+            
+            if (recipesToShow.length === 0) {
+                grid.innerHTML = '';
+                noResults.style.display = 'block';
+                loadMore.style.display = 'none';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            loadMore.style.display = recipesToShow.length < filteredRecipes.length ? 'block' : 'none';
+            
+            grid.innerHTML = recipesToShow.map(recipe => `
+                <div class="recipe-card" onclick="openRecipe(${recipe.id})">
+                    <div class="recipe-image"></div>
+                    <div class="recipe-content">
+                        <div class="recipe-title">${recipe.title}</div>
+                        <div class="recipe-meta">
+                            <span>⏱️ ${recipe.time} min</span>
+                            <span>👥 ${recipe.servings} pers.</span>
+                            <span>📊 ${recipe.difficulty}</span>
+                        </div>
+                        <div class="recipe-description">${recipe.description}</div>
+                        <div class="recipe-tags">
+                            ${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Ouvrir une recette
+        function openRecipe(id) {
+            const recipe = allRecipes.find(r => r.id === id);
+            if (recipe) {
+                alert(`Recette: ${recipe.title}\n\nIngrédients:\n${recipe.ingredients.join('\n')}\n\nInstructions:\n${recipe.instructions.join('\n')}`);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            searchQuery = e.target.value;
+            currentPage = 1;
+            filterRecipes();
+            renderRecipes();
         });
-        results = Array.from(allIds).map(id => data[id]);
-      }
-      currentPage = 1;
-      renderPage(currentPage);
-    }
 
-    input.addEventListener("input", e => {
-      doSearch(e.target.value.trim());
-    });
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                currentPage = 1;
+                filterRecipes();
+                renderRecipes();
+            });
+        });
 
-    prevBtn.addEventListener("click", () => {
-      if(currentPage > 1) {
-        currentPage--;
-        renderPage(currentPage);
-      }
-    });
+        document.getElementById('load-more').addEventListener('click', () => {
+            currentPage++;
+            renderRecipes();
+        });
 
-    nextBtn.addEventListener("click", () => {
-      const totalPages = Math.ceil(results.length / pageSize);
-      if(currentPage < totalPages) {
-        currentPage++;
-        renderPage(currentPage);
-      }
-    });
-
-    // Affichage initial
-    doSearch("");
-  </script>
-
+        // Initialisation
+        initializeRecipes();
+        filterRecipes();
+        renderRecipes();
+    </script>
 </body>
 </html>
