@@ -1,487 +1,752 @@
+# Structure complète du projet Hugo
+
+# 1. hugo.toml (configuration principale)
+baseURL = "https://mes-recettes.netlify.app"
+languageCode = "fr-FR"
+title = "Mes 100,000 Recettes"
+theme = "recipe-theme"
+
+# Configuration Hugo
+enableRobotsTXT = true
+enableGitInfo = true
+enableEmoji = true
+disableKinds = ["RSS", "sitemap"]
+
+# Paramètres pour les performances
+timeout = 30000
+enableInlineShortcodes = true
+
+# Pagination
+paginate = 24
+paginatePath = "page"
+
+# Minification
+[minify]
+  disableCSS = false
+  disableHTML = false
+  disableJS = false
+  disableJSON = false
+  disableSVG = false
+  disableXML = false
+
+# Taxonomies (très important pour les recettes)
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+  country = "countries"
+  difficulty = "difficulties"
+  cuisine = "cuisines"
+  diet = "diets"
+
+# Paramètres du site
+[params]
+  description = "Collection infinie de délicieuses recettes du monde entier"
+  author = "Chef Cuisinier"
+  
+  # Paramètres pour les recettes
+  [params.recipe]
+    defaultImage = "/images/default-recipe.jpg"
+    showNutrition = true
+    showRating = true
+    showPrepTime = true
+    showCookTime = true
+    showServings = true
+
+# Menu principal
+[menu]
+  [[menu.main]]
+    name = "Accueil"
+    url = "/"
+    weight = 1
+  [[menu.main]]
+    name = "Recettes"
+    url = "/recettes/"
+    weight = 2
+  [[menu.main]]
+    name = "Catégories"
+    url = "/categories/"
+    weight = 3
+  [[menu.main]]
+    name = "Pays"
+    url = "/countries/"
+    weight = 4
+  [[menu.main]]
+    name = "Recherche"
+    url = "/recherche/"
+    weight = 5
+
+# 2. netlify.toml (configuration Netlify)
+[build]
+  publish = "public"
+  command = "hugo --gc --minify"
+
+[build.environment]
+  HUGO_VERSION = "0.119.0"
+  HUGO_ENV = "production"
+  HUGO_ENABLEGITINFO = "true"
+
+[context.production.environment]
+  HUGO_BASEURL = "https://mes-recettes.netlify.app"
+
+[context.branch-deploy]
+  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL"
+
+[context.deploy-preview]
+  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL"
+
+# Headers pour performances
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+# 3. Structure des dossiers
+# content/
+# ├── recettes/
+# │   ├── _index.md
+# │   ├── boeuf-bourguignon.md
+# │   ├── tiramisu.md
+# │   └── ... (100k fichiers)
+# ├── categories/
+# │   ├── _index.md
+# │   ├── entrees.md
+# │   ├── plats.md
+# │   └── desserts.md
+# ├── countries/
+# │   ├── _index.md
+# │   ├── france.md
+# │   ├── italie.md
+# │   └── ...
+# └── _index.md
+
+# 4. Exemple de fichier de recette (content/recettes/boeuf-bourguignon.md)
+---
+title: "Bœuf Bourguignon Traditionnel"
+date: 2024-01-15
+draft: false
+description: "Un plat emblématique de la cuisine française, mijoté avec amour"
+image: "/images/boeuf-bourguignon.jpg"
+
+# Taxonomies
+categories: ["plats"]
+tags: ["mijote", "hiver", "traditionnel", "francais"]
+countries: ["france"]
+cuisines: ["francaise"]
+difficulties: ["moyen"]
+diets: [""]
+
+# Informations recette
+prepTime: "30 min"
+cookTime: "2h30"
+totalTime: "3h"
+servings: 6
+difficulty: "Moyen"
+cost: "€€"
+
+# Nutrition (optionnel)
+nutrition:
+  calories: 450
+  protein: 35
+  carbs: 15
+  fat: 25
+  fiber: 3
+
+# Évaluation
+rating: 4.8
+reviews: 127
+
+# Ingrédients
+ingredients:
+  - "1 kg de bœuf à braiser (joue, paleron)"
+  - "200g de lardons"
+  - "1 bouteille de vin rouge"
+  - "2 carottes"
+  - "2 oignons"
+  - "3 gousses d'ail"
+  - "250g de champignons"
+  - "2 cuillères à soupe de farine"
+  - "Bouquet garni"
+  - "Sel, poivre"
+
+# Instructions
+instructions:
+  - step: 1
+    text: "Couper la viande en gros cubes et les faire revenir dans une cocotte avec un peu d'huile."
+  - step: 2
+    text: "Ajouter les lardons et les faire dorer avec la viande."
+  - step: 3
+    text: "Saupoudrer de farine et mélanger."
+  - step: 4
+    text: "Mouiller avec le vin rouge et ajouter les légumes."
+  - step: 5
+    text: "Ajouter le bouquet garni, saler, poivrer."
+  - step: 6
+    text: "Laisser mijoter 2h30 à feu doux."
+  - step: 7
+    text: "Servir chaud avec des pommes de terre."
+
+# Conseils
+tips:
+  - "Utilisez un bon vin rouge de Bourgogne"
+  - "Laissez mariner la viande la veille"
+  - "Accompagnez de pommes de terre vapeur"
+
+# Variantes
+variations:
+  - "Version aux champignons de Paris"
+  - "Bœuf bourguignon aux légumes d'hiver"
+  - "Version allégée sans lardons"
+---
+
+Le bœuf bourguignon est l'un des plats les plus emblématiques de la cuisine française...
+
+# 5. Layout principal (layouts/_default/baseof.html)
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="{{ .Site.LanguageCode }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes 100,000 Recettes</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            color: #4a5568;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-section {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 50px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        .search-box:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .filters {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 10px 20px;
-            border: 2px solid #e2e8f0;
-            background: white;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-        }
-
-        .filter-btn:hover, .filter-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-            transform: translateY(-2px);
-        }
-
-        .recipes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .recipe-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .recipe-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-        }
-
-        .recipe-image {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(45deg, #ff6b6b, #ffd93d);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .recipe-image::before {
-            content: '🍳';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 3em;
-            opacity: 0.7;
-        }
-
-        .recipe-content {
-            padding: 20px;
-        }
-
-        .recipe-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #2d3748;
-        }
-
-        .recipe-meta {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 10px;
-            font-size: 0.9em;
-            color: #718096;
-        }
-
-        .recipe-meta span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .recipe-description {
-            color: #4a5568;
-            line-height: 1.5;
-            font-size: 0.9em;
-        }
-
-        .recipe-tags {
-            display: flex;
-            gap: 5px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .tag {
-            background: #e6fffa;
-            color: #234e52;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            border: 1px solid #b2f5ea;
-        }
-
-        .load-more {
-            display: block;
-            margin: 30px auto;
-            padding: 15px 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .load-more:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-
-        .stats {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-label {
-            color: #718096;
-            font-size: 0.9em;
-        }
-
-        .no-results {
-            text-align: center;
-            color: #718096;
-            font-size: 1.2em;
-            margin: 50px 0;
-        }
-
-        @media (max-width: 768px) {
-            .filters {
-                justify-content: center;
-            }
-            
-            .recipes-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .header h1 {
-                font-size: 2em;
-            }
-        }
-    </style>
+    <title>{{ block "title" . }}{{ .Title }} - {{ .Site.Title }}{{ end }}</title>
+    <meta name="description" content="{{ block "description" . }}{{ .Description | default .Site.Params.description }}{{ end }}">
+    
+    <!-- CSS -->
+    {{ $style := resources.Get "scss/main.scss" | resources.ToCSS | resources.Minify | resources.Fingerprint }}
+    <link rel="stylesheet" href="{{ $style.RelPermalink }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico">
+    
+    <!-- Schema.org pour SEO -->
+    {{ block "schema" . }}{{ end }}
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🍽️ Mes 100,000 Recettes</h1>
-            <p>Découvrez une collection infinie de délicieuses recettes du monde entier</p>
-        </div>
-
-        <div class="stats">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number" id="total-recipes">100,000</div>
-                    <div class="stat-label">Recettes</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">50+</div>
-                    <div class="stat-label">Catégories</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">150+</div>
-                    <div class="stat-label">Pays</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="filtered-count">24</div>
-                    <div class="stat-label">Affichées</div>
-                </div>
+    <header class="header">
+        <nav class="navbar">
+            <div class="container">
+                <a href="{{ .Site.BaseURL }}" class="logo">
+                    <h1>🍽️ {{ .Site.Title }}</h1>
+                </a>
+                <ul class="nav-menu">
+                    {{ range .Site.Menus.main }}
+                    <li><a href="{{ .URL }}">{{ .Name }}</a></li>
+                    {{ end }}
+                </ul>
             </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; {{ now.Year }} {{ .Site.Title }}. Tous droits réservés.</p>
         </div>
+    </footer>
 
-        <div class="search-section">
-            <input type="text" class="search-box" placeholder="Rechercher une recette, un ingrédient, un pays..." id="search-input">
-            
-            <div class="filters">
-                <button class="filter-btn active" data-filter="all">Toutes</button>
-                <button class="filter-btn" data-filter="entrées">Entrées</button>
-                <button class="filter-btn" data-filter="plats">Plats principaux</button>
-                <button class="filter-btn" data-filter="desserts">Desserts</button>
-                <button class="filter-btn" data-filter="boissons">Boissons</button>
-                <button class="filter-btn" data-filter="végétarien">Végétarien</button>
-                <button class="filter-btn" data-filter="rapide">Rapide</button>
-            </div>
-        </div>
-
-        <div class="recipes-grid" id="recipes-grid">
-            <!-- Les recettes seront générées ici -->
-        </div>
-
-        <div class="no-results" id="no-results" style="display: none;">
-            Aucune recette trouvée pour votre recherche 😔
-        </div>
-
-        <button class="load-more" id="load-more">Charger plus de recettes</button>
-    </div>
-
-    <script>
-        // Base de données simulée de recettes
-        const recipeDatabase = {
-            countries: ['France', 'Italie', 'Espagne', 'Mexique', 'Japon', 'Inde', 'Chine', 'Thaïlande', 'Maroc', 'Grèce'],
-            categories: ['entrées', 'plats', 'desserts', 'boissons'],
-            adjectives: ['Délicieux', 'Authentique', 'Traditionnel', 'Moderne', 'Fusion', 'Classique', 'Épicé', 'Doux', 'Crémeux', 'Croquant'],
-            dishTypes: [
-                'Soupe', 'Salade', 'Risotto', 'Curry', 'Pasta', 'Tarte', 'Gâteau', 'Mousse', 'Smoothie', 'Cocktail',
-                'Gratin', 'Ratatouille', 'Couscous', 'Paella', 'Sushi', 'Dim Sum', 'Tacos', 'Burrito', 'Pizza', 'Quiche'
-            ],
-            ingredients: [
-                'tomates', 'basilic', 'mozzarella', 'olives', 'champignons', 'poivrons', 'aubergines', 'courgettes',
-                'poulet', 'bœuf', 'porc', 'saumon', 'thon', 'crevettes', 'riz', 'pâtes', 'pommes de terre',
-                'fromage', 'crème', 'lait de coco', 'épices', 'herbes', 'ail', 'oignon', 'gingembre'
-            ],
-            tags: ['végétarien', 'vegan', 'sans gluten', 'rapide', 'facile', 'healthy', 'comfort food', 'épicé', 'sucré', 'salé']
-        };
-
-        let currentPage = 1;
-        let recipesPerPage = 24;
-        let allRecipes = [];
-        let filteredRecipes = [];
-        let currentFilter = 'all';
-        let searchQuery = '';
-
-        // Générateur de recettes
-        function generateRecipe(id) {
-            const country = recipeDatabase.countries[Math.floor(Math.random() * recipeDatabase.countries.length)];
-            const category = recipeDatabase.categories[Math.floor(Math.random() * recipeDatabase.categories.length)];
-            const adjective = recipeDatabase.adjectives[Math.floor(Math.random() * recipeDatabase.adjectives.length)];
-            const dish = recipeDatabase.dishTypes[Math.floor(Math.random() * recipeDatabase.dishTypes.length)];
-            const ingredient = recipeDatabase.ingredients[Math.floor(Math.random() * recipeDatabase.ingredients.length)];
-            
-            const time = Math.floor(Math.random() * 120) + 10;
-            const difficulty = ['Facile', 'Moyen', 'Difficile'][Math.floor(Math.random() * 3)];
-            const servings = Math.floor(Math.random() * 8) + 2;
-            
-            const numTags = Math.floor(Math.random() * 3) + 1;
-            const tags = [];
-            for (let i = 0; i < numTags; i++) {
-                const tag = recipeDatabase.tags[Math.floor(Math.random() * recipeDatabase.tags.length)];
-                if (!tags.includes(tag)) tags.push(tag);
-            }
-            
-            return {
-                id,
-                title: `${adjective} ${dish} ${country === 'France' ? 'à la française' : 'de ' + country}`,
-                category,
-                country,
-                time,
-                difficulty,
-                servings,
-                description: `Une recette ${adjective.toLowerCase()} de ${dish.toLowerCase()} aux ${ingredient}, parfaite pour découvrir les saveurs ${country === 'France' ? 'françaises' : 'de ' + country}. Facile à préparer et délicieuse à déguster.`,
-                tags,
-                image: `https://source.unsplash.com/400x300/?${dish},${ingredient}`,
-                ingredients: [ingredient, 'sel', 'poivre', 'huile d\'olive'],
-                instructions: [
-                    'Préparer tous les ingrédients',
-                    'Faire chauffer l\'huile dans une poêle',
-                    'Ajouter les ingrédients principaux',
-                    'Cuire selon les instructions',
-                    'Servir chaud et déguster'
-                ]
-            };
-        }
-
-        // Initialisation des recettes
-        function initializeRecipes() {
-            allRecipes = [];
-            for (let i = 1; i <= 100000; i++) {
-                allRecipes.push(generateRecipe(i));
-            }
-            filteredRecipes = [...allRecipes];
-        }
-
-        // Filtrage des recettes
-        function filterRecipes() {
-            let filtered = allRecipes;
-            
-            // Filtre par catégorie
-            if (currentFilter !== 'all') {
-                filtered = filtered.filter(recipe => 
-                    recipe.category === currentFilter || 
-                    recipe.tags.includes(currentFilter)
-                );
-            }
-            
-            // Filtre par recherche
-            if (searchQuery) {
-                filtered = filtered.filter(recipe =>
-                    recipe.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    recipe.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    recipe.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    recipe.ingredients.some(ing => ing.toLowerCase().includes(searchQuery.toLowerCase())) ||
-                    recipe.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-                );
-            }
-            
-            filteredRecipes = filtered;
-            updateFilteredCount();
-        }
-
-        // Mise à jour du compteur
-        function updateFilteredCount() {
-            document.getElementById('filtered-count').textContent = Math.min(filteredRecipes.length, currentPage * recipesPerPage).toLocaleString();
-        }
-
-        // Rendu des recettes
-        function renderRecipes() {
-            const grid = document.getElementById('recipes-grid');
-            const noResults = document.getElementById('no-results');
-            const loadMore = document.getElementById('load-more');
-            
-            const startIndex = 0;
-            const endIndex = currentPage * recipesPerPage;
-            const recipesToShow = filteredRecipes.slice(startIndex, endIndex);
-            
-            if (recipesToShow.length === 0) {
-                grid.innerHTML = '';
-                noResults.style.display = 'block';
-                loadMore.style.display = 'none';
-                return;
-            }
-            
-            noResults.style.display = 'none';
-            loadMore.style.display = recipesToShow.length < filteredRecipes.length ? 'block' : 'none';
-            
-            grid.innerHTML = recipesToShow.map(recipe => `
-                <div class="recipe-card" onclick="openRecipe(${recipe.id})">
-                    <div class="recipe-image"></div>
-                    <div class="recipe-content">
-                        <div class="recipe-title">${recipe.title}</div>
-                        <div class="recipe-meta">
-                            <span>⏱️ ${recipe.time} min</span>
-                            <span>👥 ${recipe.servings} pers.</span>
-                            <span>📊 ${recipe.difficulty}</span>
-                        </div>
-                        <div class="recipe-description">${recipe.description}</div>
-                        <div class="recipe-tags">
-                            ${recipe.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Ouvrir une recette
-        function openRecipe(id) {
-            const recipe = allRecipes.find(r => r.id === id);
-            if (recipe) {
-                alert(`Recette: ${recipe.title}\n\nIngrédients:\n${recipe.ingredients.join('\n')}\n\nInstructions:\n${recipe.instructions.join('\n')}`);
-            }
-        }
-
-        // Event listeners
-        document.getElementById('search-input').addEventListener('input', (e) => {
-            searchQuery = e.target.value;
-            currentPage = 1;
-            filterRecipes();
-            renderRecipes();
-        });
-
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentFilter = e.target.dataset.filter;
-                currentPage = 1;
-                filterRecipes();
-                renderRecipes();
-            });
-        });
-
-        document.getElementById('load-more').addEventListener('click', () => {
-            currentPage++;
-            renderRecipes();
-        });
-
-        // Initialisation
-        initializeRecipes();
-        filterRecipes();
-        renderRecipes();
-    </script>
+    <!-- JavaScript -->
+    {{ $js := resources.Get "js/main.js" | resources.Minify | resources.Fingerprint }}
+    <script src="{{ $js.RelPermalink }}"></script>
 </body>
 </html>
+
+# 6. Layout pour les recettes (layouts/recettes/single.html)
+{{ define "title" }}{{ .Title }}{{ end }}
+{{ define "description" }}{{ .Description }}{{ end }}
+
+{{ define "schema" }}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Recipe",
+  "name": "{{ .Title }}",
+  "description": "{{ .Description }}",
+  "image": "{{ .Site.BaseURL }}{{ .Params.image }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ .Site.Params.author }}"
+  },
+  "prepTime": "{{ .Params.prepTime }}",
+  "cookTime": "{{ .Params.cookTime }}",
+  "totalTime": "{{ .Params.totalTime }}",
+  "recipeYield": "{{ .Params.servings }}",
+  "recipeCategory": "{{ range .Params.categories }}{{ . }}{{ end }}",
+  "recipeCuisine": "{{ range .Params.cuisines }}{{ . }}{{ end }}",
+  "recipeIngredient": [
+    {{ range $index, $ingredient := .Params.ingredients }}
+    {{ if $index }},{{ end }}"{{ $ingredient }}"
+    {{ end }}
+  ],
+  "recipeInstructions": [
+    {{ range $index, $instruction := .Params.instructions }}
+    {{ if $index }},{{ end }}{
+      "@type": "HowToStep",
+      "text": "{{ $instruction.text }}"
+    }
+    {{ end }}
+  ],
+  "nutrition": {
+    "@type": "NutritionInformation",
+    "calories": "{{ .Params.nutrition.calories }}",
+    "proteinContent": "{{ .Params.nutrition.protein }}g",
+    "carbohydrateContent": "{{ .Params.nutrition.carbs }}g",
+    "fatContent": "{{ .Params.nutrition.fat }}g"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ .Params.rating }}",
+    "reviewCount": "{{ .Params.reviews }}"
+  }
+}
+</script>
+{{ end }}
+
+{{ define "main" }}
+<article class="recipe">
+    <div class="container">
+        <header class="recipe-header">
+            <h1>{{ .Title }}</h1>
+            <p class="recipe-description">{{ .Description }}</p>
+            
+            <div class="recipe-meta">
+                <span class="prep-time">⏱️ {{ .Params.prepTime }}</span>
+                <span class="cook-time">🔥 {{ .Params.cookTime }}</span>
+                <span class="servings">👥 {{ .Params.servings }} personnes</span>
+                <span class="difficulty">📊 {{ .Params.difficulty }}</span>
+                <span class="rating">⭐ {{ .Params.rating }}/5 ({{ .Params.reviews }} avis)</span>
+            </div>
+        </header>
+
+        <div class="recipe-content">
+            <div class="recipe-image">
+                <img src="{{ .Params.image }}" alt="{{ .Title }}" loading="lazy">
+            </div>
+
+            <div class="recipe-details">
+                <section class="ingredients">
+                    <h2>Ingrédients</h2>
+                    <ul>
+                        {{ range .Params.ingredients }}
+                        <li>{{ . }}</li>
+                        {{ end }}
+                    </ul>
+                </section>
+
+                <section class="instructions">
+                    <h2>Instructions</h2>
+                    <ol>
+                        {{ range .Params.instructions }}
+                        <li>{{ .text }}</li>
+                        {{ end }}
+                    </ol>
+                </section>
+
+                {{ if .Params.tips }}
+                <section class="tips">
+                    <h2>Conseils</h2>
+                    <ul>
+                        {{ range .Params.tips }}
+                        <li>{{ . }}</li>
+                        {{ end }}
+                    </ul>
+                </section>
+                {{ end }}
+            </div>
+        </div>
+
+        <div class="recipe-content-body">
+            {{ .Content }}
+        </div>
+
+        <div class="recipe-taxonomy">
+            {{ with .Params.categories }}
+            <div class="categories">
+                <strong>Catégories:</strong>
+                {{ range . }}
+                <a href="{{ "/categories/" | relURL }}{{ . | urlize }}/" class="tag">{{ . }}</a>
+                {{ end }}
+            </div>
+            {{ end }}
+
+            {{ with .Params.tags }}
+            <div class="tags">
+                <strong>Tags:</strong>
+                {{ range . }}
+                <a href="{{ "/tags/" | relURL }}{{ . | urlize }}/" class="tag">{{ . }}</a>
+                {{ end }}
+            </div>
+            {{ end }}
+
+            {{ with .Params.countries }}
+            <div class="countries">
+                <strong>Pays:</strong>
+                {{ range . }}
+                <a href="{{ "/countries/" | relURL }}{{ . | urlize }}/" class="tag">{{ . }}</a>
+                {{ end }}
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</article>
+{{ end }}
+
+# 7. Script de génération de recettes (scripts/generate-recipes.js)
+const fs = require('fs');
+const path = require('path');
+
+const countries = ['france', 'italie', 'espagne', 'mexique', 'japon', 'inde', 'chine', 'thailande'];
+const categories = ['entrees', 'plats', 'desserts', 'boissons'];
+const difficulties = ['facile', 'moyen', 'difficile'];
+const cuisines = ['francaise', 'italienne', 'espagnole', 'mexicaine', 'japonaise', 'indienne', 'chinoise', 'thailandaise'];
+
+const dishes = [
+    'Soupe', 'Salade', 'Risotto', 'Curry', 'Pasta', 'Tarte', 'Gâteau', 'Mousse',
+    'Gratin', 'Ratatouille', 'Couscous', 'Paella', 'Sushi', 'Tacos', 'Pizza', 'Quiche'
+];
+
+function generateRecipe(id) {
+    const country = countries[Math.floor(Math.random() * countries.length)];
+    const category = categories[Math.floor(Math.random() * categories.length)];
+    const difficulty = difficulties[Math.floor(Math.random() * difficulties.length)];
+    const cuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+    const dish = dishes[Math.floor(Math.random() * dishes.length)];
+    
+    const date = new Date(2024, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+    
+    const recipe = {
+        title: `${dish} ${country}`,
+        date: date.toISOString().split('T')[0],
+        description: `Une délicieuse recette de ${dish.toLowerCase()} inspirée de la cuisine ${cuisine}`,
+        categories: [category],
+        countries: [country],
+        difficulties: [difficulty],
+        cuisines: [cuisine],
+        prepTime: `${Math.floor(Math.random() * 60) + 10} min`,
+        cookTime: `${Math.floor(Math.random() * 120) + 15} min`,
+        servings: Math.floor(Math.random() * 8) + 2,
+        difficulty: difficulty.charAt(0).toUpperCase() + difficulty.slice(1),
+        rating: (Math.random() * 2 + 3).toFixed(1),
+        reviews: Math.floor(Math.random() * 200) + 10
+    };
+    
+    const frontMatter = `---
+title: "${recipe.title}"
+date: ${recipe.date}
+description: "${recipe.description}"
+categories: ${JSON.stringify(recipe.categories)}
+countries: ${JSON.stringify(recipe.countries)}
+difficulties: ${JSON.stringify(recipe.difficulties)}
+cuisines: ${JSON.stringify(recipe.cuisines)}
+prepTime: "${recipe.prepTime}"
+cookTime: "${recipe.cookTime}"
+servings: ${recipe.servings}
+difficulty: "${recipe.difficulty}"
+rating: ${recipe.rating}
+reviews: ${recipe.reviews}
+---
+
+Une délicieuse recette de ${dish.toLowerCase()} qui ravira vos papilles...
+`;
+    
+    const filename = `recette-${id.toString().padStart(6, '0')}.md`;
+    const filePath = path.join('content', 'recettes', filename);
+    
+    fs.writeFileSync(filePath, frontMatter);
+    
+    if (id % 1000 === 0) {
+        console.log(`Généré ${id} recettes...`);
+    }
+}
+
+// Créer le dossier s'il n'existe pas
+if (!fs.existsSync('content/recettes')) {
+    fs.mkdirSync('content/recettes', { recursive: true });
+}
+
+// Générer 100 000 recettes
+console.log('Génération de 100 000 recettes...');
+for (let i = 1; i <= 100000; i++) {
+    generateRecipe(i);
+}
+console.log('Génération terminée !');
+
+# 8. Package.json pour les dépendances
+{
+  "name": "hugo-recipe-site",
+  "version": "1.0.0",
+  "scripts": {
+    "generate": "node scripts/generate-recipes.js",
+    "build": "hugo --gc --minify",
+    "serve": "hugo server -D",
+    "clean": "rm -rf public resources"
+  },
+  "devDependencies": {
+    "hugo-cli": "^0.119.0"
+  }
+}
+
+# 9. CSS principal (assets/scss/main.scss)
+// Variables
+$primary-color: #667eea;
+$secondary-color: #764ba2;
+$text-color: #333;
+$light-bg: #f8f9fa;
+$white: #ffffff;
+
+// Base styles
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: $text-color;
+    background: linear-gradient(135deg, $primary-color 0%, $secondary-color 100%);
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+// Header
+.header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar {
+    padding: 1rem 0;
+    
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.logo {
+    text-decoration: none;
+    
+    h1 {
+        color: $primary-color;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    
+    a {
+        text-decoration: none;
+        color: $text-color;
+        font-weight: 500;
+        transition: color 0.3s ease;
+        
+        &:hover {
+            color: $primary-color;
+        }
+    }
+}
+
+// Recipe styles
+.recipe {
+    background: $white;
+    margin: 2rem 0;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.recipe-header {
+    padding: 2rem;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    color: $white;
+    text-align: center;
+    
+    h1 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .recipe-description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+}
+
+.recipe-meta {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    
+    span {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+}
+
+.recipe-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    
+    @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+    }
+}
+
+.recipe-image {
+    img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 15px;
+    }
+}
+
+.ingredients, .instructions {
+    background: $light-bg;
+    padding: 1.5rem;
+    border-radius: 15px;
+    
+    h2 {
+        color: $primary-color;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    ul, ol {
+        padding-left: 1.5rem;
+        
+        li {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+    }
+}
+
+.recipe-taxonomy {
+    padding: 2rem;
+    border-top: 1px solid #eee;
+    
+    > div {
+        margin-bottom: 1rem;
+        
+        strong {
+            color: $primary-color;
+            margin-right: 1rem;
+        }
+    }
+}
+
+.tag {
+    display: inline-block;
+    background: $primary-color;
+    color: $white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: background 0.3s ease;
+    
+    &:hover {
+        background: darken($primary-color, 10%);
+    }
+}
+
+// Grid layouts pour les listes
+.recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+.recipe-card {
+    background: $white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .nav-menu {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .recipe-meta {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .recipe-header h1 {
+        font-size: 2rem;
+    }
+}
+
+# 10. Commandes de déploiement
+
+# Installation
+hugo new site mon-site-recettes
+cd mon-site-recettes
+
+# Générer les recettes
+npm run generate
+
+# Test local
+hugo server -D
+
+# Build pour production
+hugo --gc --minify
+
+# Déployer sur Netlify
+# 1. Pousser sur GitHub
+# 2. Connecter le repo à Netlify
+# 3. Configuration automatique avec netlify.toml
