@@ -45,35 +45,34 @@
   <ul id="recipeList"></ul>
 
   <script>
-    // Générer 1000 recettes en texte brut (simples titres ici)
+    // Liste simple de 1000 recettes en texte brut
     const recipes = [];
-    for(let i=1; i<=1000; i++) {
-      recipes.push(`Recette numéro ${i} : Exemple de recette simple pour démonstration.`);
+    for (let i = 1; i <= 1000; i++) {
+      recipes.push("Recette n°" + i + " : Voici un exemple de recette simple sans JSON.");
     }
 
-    const list = document.getElementById('recipeList');
-    const input = document.getElementById('searchInput');
+    const list = document.getElementById("recipeList");
+    const input = document.getElementById("searchInput");
 
-    // Fonction pour afficher la liste filtrée
-    function displayRecipes(filter = '') {
-      const filterLower = filter.toLowerCase();
-      list.innerHTML = '';
-      const filtered = recipes.filter(r => r.toLowerCase().includes(filterLower));
+    // Fonction d’affichage filtré
+    function displayRecipes(filter = "") {
+      const lowerFilter = filter.toLowerCase();
+      list.innerHTML = "";
+      const filtered = recipes.filter(r => r.toLowerCase().includes(lowerFilter));
       for (const r of filtered) {
-        const li = document.createElement('li');
+        const li = document.createElement("li");
         li.textContent = r;
         list.appendChild(li);
       }
     }
 
-    // Afficher toutes les recettes au départ
+    // Affiche tout au départ
     displayRecipes();
 
-    // Filtrer en temps réel à chaque saisie
-    input.addEventListener('input', e => {
+    // Filtrer en temps réel
+    input.addEventListener("input", e => {
       displayRecipes(e.target.value);
     });
   </script>
-
 </body>
 </html>
