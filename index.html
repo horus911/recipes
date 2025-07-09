@@ -1,0 +1,104 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recettes - Recipes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 1rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    select {
+      padding: 0.5rem;
+    }
+    .recipe {
+      background: white;
+      margin: 1rem 0;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .recipe h2 {
+      margin: 0 0 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 id="app-title">Recettes</h1>
+    <select id="language-switcher">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+    </select>
+  </header>
+
+  <main id="recipes-container">
+    <p>Chargement...</p>
+  </main>
+
+  <script>
+    const i18n = {
+      fr: {
+        title: "Recettes",
+        prep: "Temps de préparation",
+        cook: "Temps de cuisson",
+        ingredients: "Ingrédients",
+        instructions: "Instructions"
+      },
+      en: {
+        title: "Recipes",
+        prep: "Prep time",
+        cook: "Cook time",
+        ingredients: "Ingredients",
+        instructions: "Instructions"
+      }
+    };
+
+    let lang = 'fr';
+
+    const switcher = document.getElementById('language-switcher');
+    const container = document.getElementById('recipes-container');
+    const title = document.getElementById('app-title');
+
+    switcher.addEventListener('change', () => {
+      lang = switcher.value;
+      loadRecipes();
+    });
+
+    async function loadRecipes() {
+      title.textContent = i18n[lang].title;
+      container.innerHTML = '<p>Chargement...</p>';
+
+      const res = await fetch('recipes.json');
+      const allRecipes = await res.json();
+      const filtered = allRecipes.slice(0, 50).filter(r => r.lang === lang);
+
+      container.innerHTML = '';
+      filtered.forEach(recipe => {
+        const div = document.createElement('div');
+        div.className = 'recipe';
+        div.innerHTML = `
+          <h2>${recipe.title}</h2>
+          <p><strong>${i18n[lang].prep}:</strong> ${recipe.prep_time}</p>
+          <p><strong>${i18n[lang].cook}:</strong> ${recipe.cook_time}</p>
+          <p><strong>${i18n[lang].ingredients}:</strong></p>
+          <ul>${recipe.ingredients.map(i => `<li>${i}</li>`).join('')}</ul>
+          <p><strong>${i18n[lang].instructions}:</strong> ${recipe.instructions}</p>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    loadRecipes();
+  </script>
+</body>
+</html>
