@@ -1,13 +1,32 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Générateur de recettes JSON</title>
+  <meta charset="UTF-8" />
+  <title>Générateur JSON recettes</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #fafafa; }
+    button {
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+    a#downloadLink {
+      display: block;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #2196F3;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <button onclick="generate()">🎉 Générer 1000 recettes</button>
-  <a id="downloadLink" style="display:none;" download="recipes.json">📥 Télécharger JSON</a>
+  <h1>Générateur JSON recettes (1000 recettes)</h1>
+  <button onclick="generate()">🎉 Générer le fichier recipes.json</button>
+  <a id="downloadLink" style="display:none;" download="recipes.json"></a>
 
   <script>
     function generate() {
@@ -30,15 +49,14 @@
         const lang = i % 2 === 0 ? 'fr' : 'en';
         const title = titles[lang][Math.floor(Math.random() * titles[lang].length)] + ' ' + (i + 1);
         const ing = ingredients[lang].sort(() => 0.5 - Math.random()).slice(0, 4);
-        const rec = {
+        recipes.push({
           lang,
           title,
           prep_time: `${10 + Math.floor(Math.random() * 20)} min`,
           cook_time: `${15 + Math.floor(Math.random() * 25)} min`,
           ingredients: ing,
           instructions: instructions[lang]
-        };
-        recipes.push(rec);
+        });
       }
 
       const blob = new Blob([JSON.stringify(recipes, null, 2)], {type: "application/json"});
