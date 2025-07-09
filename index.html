@@ -2,77 +2,127 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Recettes en texte avec recherche</title>
+  <title>Recettes 100 000+ avec recherche et pagination</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-      background: #fafafa;
-      color: #333;
-    }
+    body { font-family: Arial, sans-serif; margin: 1rem; background: #fafafa; color: #222; }
     input[type="search"] {
-      width: 100%;
-      padding: 0.8rem;
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-      border: 2px solid #4CAF50;
-      border-radius: 5px;
+      width: 100%; padding: 0.8rem; font-size: 1.1rem; margin-bottom: 1rem; border: 2px solid #4CAF50; border-radius: 5px;
     }
     ul {
-      list-style-type: none;
-      padding: 0;
-      max-height: 80vh;
-      overflow-y: auto;
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+      list-style: none; padding: 0; max-height: 60vh; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 6px;
     }
     li {
-      padding: 0.8rem 1rem;
-      border-bottom: 1px solid #eee;
-      white-space: pre-wrap;
+      padding: 0.5rem 1rem; border-bottom: 1px solid #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    li:last-child {
-      border-bottom: none;
+    .pagination {
+      margin-top: 1rem; display: flex; justify-content: center; gap: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem; font-size: 1rem; cursor: pointer; border-radius: 5px; border: 1px solid #4CAF50; background: #4CAF50; color: white;
+    }
+    button:disabled {
+      background: #ccc; border-color: #ccc; cursor: not-allowed;
     }
   </style>
 </head>
 <body>
 
-  <h1>Recettes en texte brut avec recherche</h1>
-  <input type="search" id="searchInput" placeholder="Rechercher une recette..." />
+  <h1>Recettes 100 000+ avec recherche et pagination</h1>
+  <input type="search" id="searchInput" placeholder="Chercher une recette..." autocomplete="off" />
 
   <ul id="recipeList"></ul>
 
+  <div class="pagination">
+    <button id="prevBtn" disabled>Précédent</button>
+    <span id="pageInfo">Page 1</span>
+    <button id="nextBtn">Suivant</button>
+  </div>
+
   <script>
-    // Liste simple de 1000 recettes en texte brut
-    const recipes = [];
-    for (let i = 1; i <= 1000; i++) {
-      recipes.push("Recette n°" + i + " : Voici un exemple de recette simple sans JSON.");
+    const totalRecipes = 100000;
+    const pageSize = 100;
+    let currentPage = 1;
+    let currentFilter = '';
+
+    // Générer titres à la volée (pas de stockage lourd)
+    function getRecipeTitle(index) {
+      return `Recette numéro ${index + 1}`;
     }
 
-    const list = document.getElementById("recipeList");
-    const input = document.getElementById("searchInput");
-
-    // Fonction d’affichage filtré
-    function displayRecipes(filter = "") {
-      const lowerFilter = filter.toLowerCase();
-      list.innerHTML = "";
-      const filtered = recipes.filter(r => r.toLowerCase().includes(lowerFilter));
-      for (const r of filtered) {
-        const li = document.createElement("li");
-        li.textContent = r;
-        list.appendChild(li);
+    // Chercher recettes correspondant au filtre, paginées
+    function getFilteredRecipes(filter) {
+      filter = filter.toLowerCase();
+      const matchedIndices = [];
+      for(let i=0; i<totalRecipes; i++) {
+        const title = getRecipeTitle(i);
+        if(title.toLowerCase().includes(filter)) {
+          matchedIndices.push(i);
+        }
       }
+      return matchedIndices;
     }
 
-    // Affiche tout au départ
-    displayRecipes();
+    const list = document.getElementById('recipeList');
+    const input = document.getElementById('searchInput');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageInfo = document.getElementById('pageInfo');
 
-    // Filtrer en temps réel
-    input.addEventListener("input", e => {
-      displayRecipes(e.target.value);
+    let matchedIndices = [];
+
+    function renderPage(page) {
+      list.innerHTML = '';
+      const start = (page -1)*pageSize;
+      const end = start + pageSize;
+      const pageItems = matchedIndices.slice(start, end);
+
+      if(pageItems.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'Aucune recette trouvée.';
+        list.appendChild(li);
+      } else {
+        for(const idx of pageItems) {
+          const li = document.createElement('li');
+          li.textContent = getRecipeTitle(idx);
+          list.appendChild(li);
+        }
+      }
+      pageInfo.textContent = `Page ${page} / ${Math.max(1, Math.ceil(matchedIndices.length / pageSize))}`;
+      prevBtn.disabled = page <= 1;
+      nextBtn.disabled = page >= Math.ceil(matchedIndices.length / pageSize);
+    }
+
+    function updateList() {
+      currentPage = 1;
+      matchedIndices = getFilteredRecipes(currentFilter);
+      renderPage(currentPage);
+    }
+
+    input.addEventListener('input', e => {
+      currentFilter = e.target.value.trim();
+      updateList();
     });
+
+    prevBtn.addEventListener('click', () => {
+      if(currentPage >1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if(currentPage < Math.ceil(matchedIndices.length / pageSize)) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    });
+
+    // Initial
+    currentFilter = '';
+    matchedIndices = Array.from({length: totalRecipes}, (_,i) => i);
+    renderPage(currentPage);
+
   </script>
+
 </body>
 </html>
