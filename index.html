@@ -2,9 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Générateur JSON recettes</title>
+  <title>Générateur et affichage JSON recettes</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; background: #fafafa; }
+    body { font-family: monospace, monospace; padding: 1rem; background: #f0f0f0; }
     button {
       padding: 1rem 2rem;
       font-size: 1.2rem;
@@ -13,59 +13,75 @@
       color: white;
       border: none;
       border-radius: 6px;
+      margin-bottom: 1rem;
     }
-    a#downloadLink {
-      display: block;
-      margin-top: 1rem;
-      font-size: 1.1rem;
-      color: #2196F3;
-      text-decoration: none;
+    pre {
+      background: white;
+      padding: 1rem;
+      max-height: 60vh;
+      overflow: auto;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
   </style>
 </head>
 <body>
-  <h1>Générateur JSON recettes (1000 recettes)</h1>
-  <button onclick="generate()">🎉 Générer le fichier recipes.json</button>
-  <a id="downloadLink" style="display:none;" download="recipes.json"></a>
+
+  <button id="generateBtn">Générer et afficher les 1000 recettes JSON</button>
+  <button id="downloadBtn" style="display:none;">Télécharger le fichier JSON</button>
+
+  <pre id="output"></pre>
 
   <script>
-    function generate() {
-      const titles = {
-        fr: ["Soupe", "Salade", "Gratin", "Tarte", "Riz", "Pâtes", "Sandwich", "Omelette"],
-        en: ["Soup", "Salad", "Gratin", "Pie", "Rice", "Pasta", "Sandwich", "Omelet"]
-      };
-      const ingredients = {
-        fr: ["carottes", "pommes de terre", "oignons", "fromage", "œufs", "poulet", "huile", "sel"],
-        en: ["carrots", "potatoes", "onions", "cheese", "eggs", "chicken", "oil", "salt"]
-      };
-      const instructions = {
-        fr: "Mélangez et faites cuire 20 min.",
-        en: "Mix and cook for 20 minutes."
-      };
+    const baseRecipes = [
+      {lang:"fr",title:"Soupe 1",prep_time:"15 min",cook_time:"25 min",ingredients:["carottes","pommes de terre","oignons","sel"],instructions:"Mélangez et faites cuire 20 min."},
+      {lang:"en",title:"Soup 2",prep_time:"12 min",cook_time:"20 min",ingredients:["carrots","potatoes","onions","salt"],instructions:"Mix and cook for 20 minutes."},
+      {lang:"fr",title:"Salade 3",prep_time:"10 min",cook_time:"0 min",ingredients:["tomates","huile","sel","poivre"],instructions:"Mélangez les ingrédients frais."},
+      {lang:"en",title:"Salad 4",prep_time:"8 min",cook_time:"0 min",ingredients:["tomatoes","oil","salt","pepper"],instructions:"Mix fresh ingredients."},
+      {lang:"fr",title:"Omelette 5",prep_time:"5 min",cook_time:"10 min",ingredients:["œufs","fromage","sel","poivre"],instructions:"Battez les œufs, ajoutez le fromage, cuisez."}
+    ];
 
-      const recipes = [];
+    const generateBtn = document.getElementById('generateBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const output = document.getElementById('output');
 
-      for (let i = 0; i < 1000; i++) {
-        const lang = i % 2 === 0 ? 'fr' : 'en';
-        const title = titles[lang][Math.floor(Math.random() * titles[lang].length)] + ' ' + (i + 1);
-        const ing = ingredients[lang].sort(() => 0.5 - Math.random()).slice(0, 4);
-        recipes.push({
-          lang,
-          title,
-          prep_time: `${10 + Math.floor(Math.random() * 20)} min`,
-          cook_time: `${15 + Math.floor(Math.random() * 25)} min`,
-          ingredients: ing,
-          instructions: instructions[lang]
-        });
+    let allRecipes = [];
+
+    function generateRecipes() {
+      allRecipes = [];
+      for(let i=0; i<200; i++) {
+        for(let r of baseRecipes) {
+          const baseTitle = r.title.split(' ').slice(0, -1).join(' ');
+          const num = i * 5 + parseInt(r.title.split(' ').slice(-1)[0]);
+          allRecipes.push({
+            ...r,
+            title: `${baseTitle} ${num}`
+          });
+        }
       }
-
-      const blob = new Blob([JSON.stringify(recipes, null, 2)], {type: "application/json"});
-      const url = URL.createObjectURL(blob);
-      const link = document.getElementById('downloadLink');
-      link.href = url;
-      link.style.display = 'inline-block';
-      link.textContent = "📥 Télécharger le fichier recipes.json";
     }
+
+    function downloadJSON(data, filename) {
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    generateBtn.addEventListener('click', () => {
+      generateRecipes();
+      output.textContent = JSON.stringify(allRecipes, null, 2);
+      downloadBtn.style.display = 'inline-block';
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      downloadJSON(allRecipes, 'recipes_1000.json');
+    });
   </script>
+
 </body>
 </html>
