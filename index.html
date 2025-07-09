@@ -2,17 +2,17 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Recettes détaillées avec Fuse.js</title>
+  <title>Recettes 100 000+ avec FlexSearch</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 1rem; background: #fafafa; color: #222; }
     input[type="search"] {
       width: 100%; padding: 0.8rem; font-size: 1.1rem; margin-bottom: 1rem; border: 2px solid #4CAF50; border-radius: 5px;
     }
     ul {
-      list-style: none; padding: 0; max-height: 70vh; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 6px;
+      list-style: none; padding: 0; max-height: 60vh; overflow-y: auto; background: white; border: 1px solid #ccc; border-radius: 6px;
     }
     li {
-      padding: 1rem; border-bottom: 1px solid #eee; white-space: pre-wrap; font-size: 0.9rem; line-height: 1.3;
+      padding: 0.5rem 1rem; border-bottom: 1px solid #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .pagination {
       margin-top: 1rem; display: flex; justify-content: center; gap: 1rem;
@@ -24,13 +24,12 @@
       background: #ccc; border-color: #ccc; cursor: not-allowed;
     }
   </style>
-  <script src="fuse.min.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/flexsearch@0.7.31/dist/flexsearch.bundle.js"></script>
 </head>
 <body>
 
-  <h1>Recettes détaillées avec recherche Fuse.js (10 000)</h1>
-  <input type="search" id="searchInput" placeholder="Chercher une recette, ingrédient, préparation..." autocomplete="off" />
+  <h1>Recettes 100 000+ avec FlexSearch</h1>
+  <input type="search" id="searchInput" placeholder="Chercher une recette..." autocomplete="off" />
 
   <ul id="recipeList"></ul>
 
@@ -41,69 +40,32 @@
   </div>
 
   <script>
-    const totalRecipes = 10000;
-    const pageSize = 50;
+    const totalRecipes = 100000;
+    const pageSize = 100;
     let currentPage = 1;
     let results = [];
-    let fuse;
 
-    const baseTitles = [
-      "Soupe aux légumes",
-      "Salade fraîche",
-      "Poulet rôti",
-      "Tarte aux pommes",
-      "Gratin dauphinois",
-      "Omelette au fromage",
-      "Pâtes à la bolognaise",
-      "Poisson grillé",
-      "Crêpes sucrées",
-      "Gâteau au yaourt"
-    ];
+    // Créer l'index FlexSearch
+    const index = new FlexSearch.Index({
+      tokenize: "forward",
+      cache: true,
+      async: false,
+      worker: false,
+      resolution: 3
+    });
 
-    const baseIngredients = [
-      "légumes frais, huile d'olive, sel, poivre",
-      "salade verte, tomates, vinaigrette, herbes",
-      "poulet entier, herbes de Provence, ail, huile",
-      "pommes, pâte brisée, sucre, cannelle",
-      "pommes de terre, crème, ail, fromage",
-      "œufs, fromage râpé, beurre, sel",
-      "pâtes, viande hachée, tomates, oignons",
-      "filet de poisson, citron, herbes, huile",
-      "farine, œufs, lait, sucre",
-      "yaourt, farine, œufs, sucre"
-    ];
-
-    const basePreparations = [
-      "Mélangez les ingrédients et faites cuire doucement.",
-      "Coupez, assaisonnez, et servez frais.",
-      "Assaisonnez et faites rôtir au four pendant 1 heure.",
-      "Disposez les fruits sur la pâte et enfournez 40 minutes.",
-      "Coupez en tranches, nappez de crème, et faites gratiner.",
-      "Battez les œufs avec le fromage, cuisez à la poêle.",
-      "Préparez la sauce avec viande et tomates, servez avec pâtes.",
-      "Assaisonnez, puis grillez à la poêle ou au four.",
-      "Préparez la pâte, cuisez des crêpes fines et dorées.",
-      "Mélangez tout, versez dans un moule et enfournez."
-    ];
-
-    // Générer les recettes
-    const data = [];
-    for(let i=1; i<=totalRecipes; i++) {
-      const idx = (i - 1) % baseTitles.length;
-      data.push({
-        title: `${baseTitles[idx]} n°${i}`,
-        ingredients: baseIngredients[idx],
-        preparation: basePreparations[idx]
-      });
+    // Générer et indexer les titres
+    function getRecipeTitle(i) {
+      return `Recette numéro ${i + 1}`;
     }
 
-    // Init Fuse
-    fuse = new Fuse(data, {
-      keys: ['title', 'ingredients', 'preparation'],
-      threshold: 0.3,
-      ignoreLocation: true,
-      minMatchCharLength: 1,
-    });
+    // On stocke aussi les titres dans un tableau pour affichage
+    const data = [];
+    for(let i=0; i<totalRecipes; i++) {
+      const title = getRecipeTitle(i);
+      data.push(title);
+      index.add(i, title);
+    }
 
     const list = document.getElementById('recipeList');
     const input = document.getElementById('searchInput');
@@ -112,59 +74,59 @@
     const pageInfo = document.getElementById('pageInfo');
 
     function renderPage(page) {
-      list.innerHTML = '';
+      list.innerHTML = "";
       const start = (page - 1) * pageSize;
       const end = start + pageSize;
       const pageItems = results.slice(start, end);
 
-      if(pageItems.length === 0) {
-        const li = document.createElement('li');
-        li.textContent = 'Aucune recette trouvée.';
+      if (pageItems.length === 0) {
+        const li = document.createElement("li");
+        li.textContent = "Aucune recette trouvée.";
         list.appendChild(li);
       } else {
-        for(const res of pageItems) {
-          const li = document.createElement('li');
-          li.textContent =
-            `${res.item.title}\nIngrédients : ${res.item.ingredients}\nPréparation : ${res.item.preparation}`;
+        for (const idx of pageItems) {
+          const li = document.createElement("li");
+          li.textContent = data[idx];
           list.appendChild(li);
         }
       }
 
-      pageInfo.textContent = `Page ${page} / ${Math.max(1, Math.ceil(results.length / pageSize))}`;
+      const totalPages = Math.max(1, Math.ceil(results.length / pageSize));
+      pageInfo.textContent = `Page ${page} / ${totalPages}`;
       prevBtn.disabled = page <= 1;
-      nextBtn.disabled = page >= Math.ceil(results.length / pageSize);
+      nextBtn.disabled = page >= totalPages;
     }
 
     function doSearch(query) {
-      if(!query) {
-        results = data.map(item => ({ item }));
+      if (!query) {
+        results = [...Array(totalRecipes).keys()];
       } else {
-        results = fuse.search(query);
+        results = index.search(query);
       }
       currentPage = 1;
       renderPage(currentPage);
     }
 
-    input.addEventListener('input', e => {
+    input.addEventListener("input", e => {
       doSearch(e.target.value.trim());
     });
 
-    prevBtn.addEventListener('click', () => {
-      if(currentPage > 1) {
+    prevBtn.addEventListener("click", () => {
+      if (currentPage > 1) {
         currentPage--;
         renderPage(currentPage);
       }
     });
 
-    nextBtn.addEventListener('click', () => {
-      if(currentPage < Math.ceil(results.length / pageSize)) {
+    nextBtn.addEventListener("click", () => {
+      if (currentPage < Math.ceil(results.length / pageSize)) {
         currentPage++;
         renderPage(currentPage);
       }
     });
 
-    // Initial display
-    doSearch('');
+    // Initialisation
+    doSearch("");
   </script>
 
 </body>
