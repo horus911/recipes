@@ -2,84 +2,76 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Générateur et affichage JSON recettes</title>
+  <title>Recettes en texte avec recherche</title>
   <style>
-    body { font-family: monospace, monospace; padding: 1rem; background: #f0f0f0; }
-    button {
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      cursor: pointer;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      margin-bottom: 1rem;
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      background: #fafafa;
+      color: #333;
     }
-    pre {
+    input[type="search"] {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      border: 2px solid #4CAF50;
+      border-radius: 5px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+      max-height: 80vh;
+      overflow-y: auto;
       background: white;
-      padding: 1rem;
-      max-height: 60vh;
-      overflow: auto;
-      border-radius: 6px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    li {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid #eee;
       white-space: pre-wrap;
-      word-wrap: break-word;
+    }
+    li:last-child {
+      border-bottom: none;
     }
   </style>
 </head>
 <body>
 
-  <button id="generateBtn">Générer et afficher les 1000 recettes JSON</button>
-  <button id="downloadBtn" style="display:none;">Télécharger le fichier JSON</button>
+  <h1>Recettes en texte brut avec recherche</h1>
+  <input type="search" id="searchInput" placeholder="Rechercher une recette..." />
 
-  <pre id="output"></pre>
+  <ul id="recipeList"></ul>
 
   <script>
-    const baseRecipes = [
-      {lang:"fr",title:"Soupe 1",prep_time:"15 min",cook_time:"25 min",ingredients:["carottes","pommes de terre","oignons","sel"],instructions:"Mélangez et faites cuire 20 min."},
-      {lang:"en",title:"Soup 2",prep_time:"12 min",cook_time:"20 min",ingredients:["carrots","potatoes","onions","salt"],instructions:"Mix and cook for 20 minutes."},
-      {lang:"fr",title:"Salade 3",prep_time:"10 min",cook_time:"0 min",ingredients:["tomates","huile","sel","poivre"],instructions:"Mélangez les ingrédients frais."},
-      {lang:"en",title:"Salad 4",prep_time:"8 min",cook_time:"0 min",ingredients:["tomatoes","oil","salt","pepper"],instructions:"Mix fresh ingredients."},
-      {lang:"fr",title:"Omelette 5",prep_time:"5 min",cook_time:"10 min",ingredients:["œufs","fromage","sel","poivre"],instructions:"Battez les œufs, ajoutez le fromage, cuisez."}
-    ];
+    // Générer 1000 recettes en texte brut (simples titres ici)
+    const recipes = [];
+    for(let i=1; i<=1000; i++) {
+      recipes.push(`Recette numéro ${i} : Exemple de recette simple pour démonstration.`);
+    }
 
-    const generateBtn = document.getElementById('generateBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const output = document.getElementById('output');
+    const list = document.getElementById('recipeList');
+    const input = document.getElementById('searchInput');
 
-    let allRecipes = [];
-
-    function generateRecipes() {
-      allRecipes = [];
-      for(let i=0; i<200; i++) {
-        for(let r of baseRecipes) {
-          const baseTitle = r.title.split(' ').slice(0, -1).join(' ');
-          const num = i * 5 + parseInt(r.title.split(' ').slice(-1)[0]);
-          allRecipes.push({
-            ...r,
-            title: `${baseTitle} ${num}`
-          });
-        }
+    // Fonction pour afficher la liste filtrée
+    function displayRecipes(filter = '') {
+      const filterLower = filter.toLowerCase();
+      list.innerHTML = '';
+      const filtered = recipes.filter(r => r.toLowerCase().includes(filterLower));
+      for (const r of filtered) {
+        const li = document.createElement('li');
+        li.textContent = r;
+        list.appendChild(li);
       }
     }
 
-    function downloadJSON(data, filename) {
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
+    // Afficher toutes les recettes au départ
+    displayRecipes();
 
-    generateBtn.addEventListener('click', () => {
-      generateRecipes();
-      output.textContent = JSON.stringify(allRecipes, null, 2);
-      downloadBtn.style.display = 'inline-block';
-    });
-
-    downloadBtn.addEventListener('click', () => {
-      downloadJSON(allRecipes, 'recipes_1000.json');
+    // Filtrer en temps réel à chaque saisie
+    input.addEventListener('input', e => {
+      displayRecipes(e.target.value);
     });
   </script>
 
